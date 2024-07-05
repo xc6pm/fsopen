@@ -7,6 +7,11 @@ const Statistics = ({good, neutral, bad}) => {
   const average = pointsEarned / all
   const positiveRatio = good / all
 
+  console.log(good | neutral | bad)
+
+  if (good + neutral + bad === 0) {
+    return <p>No feedback given</p>
+  }
   return (
     <>
       <p>good {good}</p>
