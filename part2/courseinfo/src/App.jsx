@@ -1,44 +1,4 @@
-
-function Header({course}) {
-  return (
-    <h1>{course.name}</h1>
-  )
-}
-
-function Part({part}) {
-  return (
-    <p>
-      {part.name}: {part.exercises} exercises
-    </p>
-  )
-}
-
-function Content({course}) {
-  return (
-    <div>
-      {course.parts.map(p => (<Part part={p}/>))}
-    </div>
-  )
-}
-
-
-function Total({course}){
-  return (
-    <b>
-      Total exercises: {course.parts.reduce(((sum, curr) => sum + curr.exercises), 0)}
-    </b>
-  )
-}
-
-function Course({course}){
-  return (
-    <>
-      <Header course={course}/>
-      <Content course={course}/>
-      <Total course={course}/>
-    </>
-  )
-}
+import Course from "./Course.jsx"
 
 function App() {
   const courses = [
@@ -67,7 +27,7 @@ function App() {
           id: 4
         }
       ]
-    }, 
+    },
     {
       name: 'Node.js',
       id: 2,
@@ -89,10 +49,10 @@ function App() {
   return (
     <>
       {courses.map(c => (
-        <>
-          <Course key={c.id} course={c}/>
-          <hr/>
-        </>
+        <div key={c.id}>
+          <Course course={c} />
+          <hr />
+        </div>
       ))}
     </>
   )
