@@ -22,6 +22,10 @@ const App = () => {
     setPersons(persons.concat({ name: name, number: number }))
   }
 
+  const handlePersonUpdated = updatedPerson => {
+    setPersons(persons.map(p => p.id === updatedPerson.id ? updatedPerson : p))
+  }
+
   const handlePersonDeleted = deletedPerson => {
     setPersons(persons.filter(p => p.id !== deletedPerson.id))
   }
@@ -31,7 +35,7 @@ const App = () => {
       <h2>Phonebook</h2>
       <Filter query={query} onQueryChanged={evt => setQuery(evt.target.value)}/>
       <h2>Add a new</h2>
-      <PersonForm onPersonCreated={handlePersonCreated} existingPersons={persons}/>
+      <PersonForm onPersonCreated={handlePersonCreated} existingPersons={persons} onPersonUpdated={handlePersonUpdated}/>
       <h2>Numbers</h2>
       <Persons personsToShow={personsToShow} onPersonDeleted={handlePersonDeleted}/>
     </div>
