@@ -2,7 +2,7 @@ import { useEffect } from "react"
 import axios from "axios"
 import { useState } from "react"
 
-const SearchResults = ({ query }) => {
+const SearchResults = ({ query, onCountrySelected }) => {
     const [allCountries, setAllCountries] = useState(null)
     useEffect(() => {
         axios.get("https://studies.cs.helsinki.fi/restcountries/api/all").then(response => {
@@ -26,7 +26,12 @@ const SearchResults = ({ query }) => {
         return <p>Too many matches, specify another filter</p>
 
     if (searchResults.length > 1)
-        return searchResults.map(c => <p key={c.name.common}>{c.name.common}</p>)
+        return searchResults.map(c =>
+            <p key={c.name.common}>
+                {c.name.common} 
+                <button onClick={() => onCountrySelected(c.name.common)}>show</button>
+            </p>
+        )
 
     return (
         <div>
@@ -37,7 +42,7 @@ const SearchResults = ({ query }) => {
             <h4>languages</h4>
 
             <ul>
-                <li>{Object.entries(searchResults[0].languages).map(e => e[1])}</li>
+                {Object.entries(searchResults[0].languages).map(e => <li>{e[1]}</li>)}
             </ul>
 
             <img src={searchResults[0].flags.png} alt={searchResults[0].flags.alt} />

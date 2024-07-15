@@ -7,7 +7,7 @@ function App() {
   return (
     <>
       find countries <input type="text" value={query} onChange={evt => setQuery(evt.target.value)}/>
-      <SearchResults query={query}/>
+      <SearchResults query={query} onCountrySelected={selectedCountry => setQuery(selectedCountry)}/>
     </>
   )
 }
