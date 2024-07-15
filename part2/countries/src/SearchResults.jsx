@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import axios from "axios"
 import { useState } from "react"
+import Weather from "./Weather"
 
 const SearchResults = ({ query, onCountrySelected }) => {
     const [allCountries, setAllCountries] = useState(null)
@@ -42,10 +43,12 @@ const SearchResults = ({ query, onCountrySelected }) => {
             <h4>languages</h4>
 
             <ul>
-                {Object.entries(searchResults[0].languages).map(e => <li>{e[1]}</li>)}
+                {Object.entries(searchResults[0].languages).map(e => <li key={e[0]}>{e[1]}</li>)}
             </ul>
 
             <img src={searchResults[0].flags.png} alt={searchResults[0].flags.alt} />
+
+            <Weather city={searchResults[0].name.common}/>
         </div>
     )
 }
