@@ -22,6 +22,10 @@ const App = () => {
     setPersons(persons.concat({ name: name, number: number }))
   }
 
+  const handlePersonDeleted = deletedPerson => {
+    setPersons(persons.filter(p => p.id !== deletedPerson.id))
+  }
+
   return (
     <div>
       <h2>Phonebook</h2>
@@ -29,7 +33,7 @@ const App = () => {
       <h2>Add a new</h2>
       <PersonForm onPersonCreated={handlePersonCreated} existingPersons={persons}/>
       <h2>Numbers</h2>
-      <Persons personsToShow={personsToShow}/>
+      <Persons personsToShow={personsToShow} onPersonDeleted={handlePersonDeleted}/>
     </div>
   )
 }
