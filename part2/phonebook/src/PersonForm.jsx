@@ -1,14 +1,22 @@
 import { useState } from "react"
 import personsService from "./services/persons"
+import Notification from "./Notification"
 
 const PersonForm = ({ onPersonCreated, existingPersons, onPersonUpdated }) => {
     const [newName, setNewName] = useState('')
     const [newNumber, setNewNumber] = useState('')
+    const [message, setMessage] = useState(null)
+
+    const showMessage = message => {
+        setMessage(message)
+        setTimeout(() => setMessage(null), 5000)
+    }
 
     const createPerson = (newNameTrimmed, newNumberTrimmed) => {
         personsService.create({ name: newNameTrimmed, number: newNumberTrimmed })
-            .then(() => {
-                onPersonCreated(newNameTrimmed, newNumberTrimmed)
+            .then(createdPerson => {
+                onPersonCreated(createdPerson)
+                showMessage({ text: `Added ${createdPerson.name}`, type: "success" })
                 setNewName("")
                 setNewNumber("")
             })
@@ -20,10 +28,19 @@ const PersonForm = ({ onPersonCreated, existingPersons, onPersonUpdated }) => {
             `${personToUpdate.name} is already added to the phonebook,` +
             ` do you want to replace the old number with the new one?`))
             return
-        
-        personsService.update({...personToUpdate, number: newNumberTrimmed})
+
+        personsService.update({ ...personToUpdate, number: newNumberTrimmed })
             .then(updatedPerson => {
                 onPersonUpdated(updatedPerson)
+                showMessage({ text: `Updated ${updatePerson.name}!`, type: "success" })
+                setNewName("")
+                setNewNumber("")
+            })
+            .catch(error => {
+                showMessage({
+                    text: `Information of ${personToUpdate.name} has already been removed from the server!`,
+                    type: "error"
+                })
                 setNewName("")
                 setNewNumber("")
             })
@@ -41,11 +58,11 @@ const PersonForm = ({ onPersonCreated, existingPersons, onPersonUpdated }) => {
                 return
             }
 
-            alert(`${newName} is already added to the phonebook`)
+            showMessage({ text: `${newName} is already added to the phonebook`, type: "error" })
             return
         }
         if (existingPersons.some(p => p.number === numberTrimmed)) {
-            alert(`The number ${newNumber} is already added`)
+            showMessage({ text: `The number ${newNumber} is already added`, type: "error" })
             return
         }
 
@@ -63,6 +80,8 @@ const PersonForm = ({ onPersonCreated, existingPersons, onPersonUpdated }) => {
             <div>
                 <button type="submit">add</button>
             </div>
+
+            <Notification message={message} />
         </form>
     )
 }

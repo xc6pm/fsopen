@@ -18,8 +18,8 @@ const App = () => {
     persons.filter(p => p.name.toLowerCase().includes(query.toLowerCase())) :
     persons
 
-  const handlePersonCreated = (name, number) => {
-    setPersons(persons.concat({ name: name, number: number }))
+  const handlePersonCreated = (createdPerson) => {
+    setPersons(persons.concat(createdPerson))
   }
 
   const handlePersonUpdated = updatedPerson => {
