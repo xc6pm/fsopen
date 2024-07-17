@@ -1,6 +1,7 @@
 const express = require("express")
 
 const app = express()
+app.use(express.json())
 
 const data = [
   {
@@ -48,6 +49,19 @@ app.delete("/api/persons/:id", (request, response) => {
     data.splice(index, 1)
   
   response.sendStatus(204)
+})
+
+const maxId = 100000000
+app.post("/api/persons", (request, response) => {
+  const person = request.body
+
+  if (!person.name || !person.number)
+    response.sendStatus(400)
+
+  person.id = Math.floor(Math.random() * maxId)
+  data.push(person)
+  response.status(201)
+  response.json(person)
 })
 
 const PORT = 3001

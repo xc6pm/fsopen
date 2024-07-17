@@ -1,0 +1,10 @@
+POST http://localhost:3001/api/persons
+Content-Type: text/plain
+
+{
+    "name": "Julian",
+    "number": "07675789"
+}
+
+###
+DELETE http://localhost:3001/api/persons/2
