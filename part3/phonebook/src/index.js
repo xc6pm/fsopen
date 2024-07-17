@@ -42,6 +42,14 @@ app.get("/api/persons/:id", (request, response) => {
     response.sendStatus(404)
 })
 
+app.delete("/api/persons/:id", (request, response) => {
+  const index = data.findIndex(p => p.id === request.params.id)
+  if (index !== -1)
+    data.splice(index, 1)
+  
+  response.sendStatus(204)
+})
+
 const PORT = 3001
 
 app.listen(PORT, () => "Server running on port " + PORT)
