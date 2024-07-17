@@ -55,8 +55,17 @@ const maxId = 100000000
 app.post("/api/persons", (request, response) => {
   const person = request.body
 
-  if (!person.name || !person.number)
-    response.sendStatus(400)
+  if (!person.name || !person.number){
+    response.status(400)
+    response.send("A person object with name and number props are required")
+    return
+  }
+
+  if (data.some(p => p.name.localeCompare(person.name, "en", {sensitivity: "accent"}) === 0)) {
+    response.status(400)
+    response.send("The name already exists")
+    return
+  }
 
   person.id = Math.floor(Math.random() * maxId)
   data.push(person)
