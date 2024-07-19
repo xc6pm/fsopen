@@ -1,11 +1,17 @@
 const express = require("express")
 const morgan = require("morgan")
+const cors = require("cors")
 
 const app = express()
+
+app.use(cors())
+
 app.use(express.json())
 
 morgan.token("body", (req, res) => JSON.stringify(req.body))
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms :body"))
+
+app.use(express.static("dist"))
 
 const data = [
   {
@@ -48,11 +54,18 @@ app.get("/api/persons/:id", (request, response) => {
 })
 
 app.delete("/api/persons/:id", (request, response) => {
+  console.log("delete")
   const index = data.findIndex(p => p.id === request.params.id)
+  console.log("before splice", data)
+  let deleted = null
   if (index !== -1)
-    data.splice(index, 1)
+    deleted = data.splice(index, 1)
   
-  response.sendStatus(204)
+  console.log("after splice", data)
+  console.log("deleted", deleted, deleted?.length)
+
+  response.status(204)
+  response.send(deleted?.length ? deleted[0] : null)
 })
 
 const maxId = 100000000
@@ -77,6 +90,6 @@ app.post("/api/persons", (request, response) => {
   response.json(person)
 })
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 
 app.listen(PORT, () => "Server running on port " + PORT)
