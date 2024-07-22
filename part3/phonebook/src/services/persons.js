@@ -20,8 +20,7 @@ const update = personToUpdate => {
 const remove = id => {
     const promise = axios.delete(`${baseUrl}/${id}`)
     return promise.then(response => {
-        console.log(response)
-        return response.data
+        return response.status === 204
     })
 }
 

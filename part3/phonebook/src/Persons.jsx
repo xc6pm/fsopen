@@ -7,8 +7,11 @@ const Persons = ({ personsToShow, onPersonDeleted }) => {
             return
 
         personsService.remove(person.id)
-            .then(deletedPerson => {
-                onPersonDeleted(deletedPerson)
+            .then(success => {
+                if (success)
+                    onPersonDeleted(person)
+                else
+                    onPersonDeleted(null)
             })
     }
 

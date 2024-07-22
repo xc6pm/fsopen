@@ -1,4 +1,3 @@
-import axios from "axios"
 import { useEffect, useState } from 'react'
 import Filter from './Filter'
 import PersonForm from './PersonForm'
@@ -27,7 +26,8 @@ const App = () => {
   }
 
   const handlePersonDeleted = deletedPerson => {
-    setPersons(persons.filter(p => p.id !== deletedPerson.id))
+    if (deletedPerson)
+      setPersons(persons.filter(p => p.id !== deletedPerson.id))
   }
 
   return (
