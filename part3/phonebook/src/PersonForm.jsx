@@ -20,7 +20,7 @@ const PersonForm = ({ onPersonCreated, existingPersons, onPersonUpdated }) => {
                 setNewName("")
                 setNewNumber("")
             })
-            .catch(error => alert(error))
+            .catch(error => {showMessage({text: error.response.data.error, type: "error"})})
     }
 
     const updatePerson = (personToUpdate, newNumberTrimmed) => {
@@ -38,7 +38,7 @@ const PersonForm = ({ onPersonCreated, existingPersons, onPersonUpdated }) => {
             })
             .catch(error => {
                 showMessage({
-                    text: `Information of ${personToUpdate.name} has already been removed from the server!`,
+                    text: error.response.data.error,
                     type: "error"
                 })
                 setNewName("")
