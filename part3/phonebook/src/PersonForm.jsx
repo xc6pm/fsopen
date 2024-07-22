@@ -32,7 +32,7 @@ const PersonForm = ({ onPersonCreated, existingPersons, onPersonUpdated }) => {
         personsService.update({ ...personToUpdate, number: newNumberTrimmed })
             .then(updatedPerson => {
                 onPersonUpdated(updatedPerson)
-                showMessage({ text: `Updated ${updatePerson.name}!`, type: "success" })
+                showMessage({ text: `Updated ${updatedPerson.name}!`, type: "success" })
                 setNewName("")
                 setNewNumber("")
             })

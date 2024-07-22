@@ -13,7 +13,7 @@ const create = (newPerson) => {
 }
 
 const update = personToUpdate => {
-    const promise = axios.put(`${baseUrl}/${personToUpdate.id}`, personToUpdate)
+    const promise = axios.put(baseUrl, personToUpdate)
     return promise.then(r => r.data)
 }
 

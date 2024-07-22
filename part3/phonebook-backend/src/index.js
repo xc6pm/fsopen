@@ -66,6 +66,21 @@ app.post("/api/persons", (request, response) => {
   })
 })
 
+app.put("/api/persons", (request, response, next) => {
+  const person = request.body
+
+  if (!person.name || !person.number || !person.id) {
+    return response.status(404).send("Invalid person")
+  }
+
+  Person.findByIdAndUpdate(person.id, {number: person.number}, {returnDocument: "after"}).then(r => {
+    response.status(200)
+    response.send(r)
+  }).catch(error => {
+    next(error)
+  })
+})
+
 const errorHandler = (error, request, response, next) => {
   console.error(error.message)
 
