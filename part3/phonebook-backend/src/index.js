@@ -28,13 +28,12 @@ app.get("/info", (request, response) => {
   })
 })
 
-app.get("/api/persons/:id", (request, response) => {
+app.get("/api/persons/:id", (request, response, next) => {
   Person.findById(request.params.id).then(r => {
     response.status(200)
     response.send(r)
   }).catch(e => {
-    response.status(404)
-    response.send(e.message)
+    next(e)
   })
 })
 
@@ -66,6 +65,18 @@ app.post("/api/persons", (request, response) => {
     })
   })
 })
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === "CastError") {
+    return response.status(400).send({error: "malformatted id"})
+  }
+
+  next(error)
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 
