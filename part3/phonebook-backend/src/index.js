@@ -15,30 +15,32 @@ app.use(morgan(":method :url :status :res[content-length] - :response-time ms :b
 app.use(express.static("dist"))
 
 app.get("/api/persons", (request, response) => {
-  Person.find({}).then(r => {
+  Person.find({}).then((r) => {
     response.status(200)
     response.send(r)
   })
 })
 
 app.get("/info", (request, response) => {
-  Person.find({}).then(r => {
+  Person.find({}).then((r) => {
     response.status(200)
     response.send(`There are ${r.length} people stored in the db`)
   })
 })
 
 app.get("/api/persons/:id", (request, response, next) => {
-  Person.findById(request.params.id).then(r => {
-    response.status(200)
-    response.send(r)
-  }).catch(e => {
-    next(e)
-  })
+  Person.findById(request.params.id)
+    .then((r) => {
+      response.status(200)
+      response.send(r)
+    })
+    .catch((e) => {
+      next(e)
+    })
 })
 
 app.delete("/api/persons/:id", (request, response) => {
-  Person.findByIdAndDelete(request.params.id).then(r =>{
+  Person.findByIdAndDelete(request.params.id).then((r) => {
     response.sendStatus(204)
   })
 })
@@ -46,23 +48,25 @@ app.delete("/api/persons/:id", (request, response) => {
 app.post("/api/persons", (request, response, next) => {
   const person = request.body
 
-  if (!person.name || !person.number){
+  if (!person.name || !person.number) {
     response.status(400)
     response.send("A person object with name and number props are required")
     return
   }
 
-  Person.exists({name: person.name}).then(exists => {
-    if (exists){
+  Person.exists({ name: person.name }).then((exists) => {
+    if (exists) {
       response.status(400)
       response.send("The name already exists")
       return
     }
-    
-    Person.create({name: person.name, number: person.number}).then(r => {
-      response.status(201)
-      response.send(r)
-    }).catch(error => next(error))
+
+    Person.create({ name: person.name, number: person.number })
+      .then((r) => {
+        response.status(201)
+        response.send(r)
+      })
+      .catch((error) => next(error))
   })
 })
 
@@ -73,22 +77,27 @@ app.put("/api/persons", (request, response, next) => {
     return response.status(404).send("Invalid person")
   }
 
-  Person.findByIdAndUpdate(person.id, {number: person.number},
-    {returnDocument: "after", runValidators: true, context: "query"}).then(r => {
-    response.status(200)
-    response.send(r)
-  }).catch(error => {
-    next(error)
-  })
+  Person.findByIdAndUpdate(
+    person.id,
+    { number: person.number },
+    { returnDocument: "after", runValidators: true, context: "query" }
+  )
+    .then((r) => {
+      response.status(200)
+      response.send(r)
+    })
+    .catch((error) => {
+      next(error)
+    })
 })
 
 const errorHandler = (error, request, response, next) => {
   console.error(error.message)
 
   if (error.name === "CastError") {
-    return response.status(400).send({error: "malformatted id"})
+    return response.status(400).send({ error: "malformatted id" })
   } else if (error.name === "ValidationError") {
-    return response.status(400).send({error: error.message})
+    return response.status(400).send({ error: error.message })
   }
 
   next(error)
