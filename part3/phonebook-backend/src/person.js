@@ -21,6 +21,12 @@ const personSchema = new mongoose.Schema({
     number: {
         type: String,
         required: true,
+        validate: {
+            validator: v => {
+                return /^(?=.{8}$)^[\d]{2,3}-[\d]*$/.test(v)
+            },
+            message: "Number must be in format xx-xxxxx or xxx-xxxx!"
+        }
     }
 })
 
