@@ -73,15 +73,43 @@ describe("total likes", () => {
 })
 
 describe("favorite blog", () => {
-    test("empty list returns null", () => {
-        assert.deepStrictEqual(listHelper.favoriteBlog([]), null)
-    })
+  test("empty list returns null", () => {
+    assert.deepStrictEqual(listHelper.favoriteBlog([]), null)
+  })
 
-    test("one blog returns the blog", () => {
-        assert.deepStrictEqual(listHelper.favoriteBlog(oneBlog), oneBlog[0])
-    })
+  test("one blog returns the blog", () => {
+    assert.deepStrictEqual(listHelper.favoriteBlog(oneBlog), oneBlog[0])
+  })
 
-    test("finds the right one among many", () =>  {
-        assert.deepStrictEqual(listHelper.favoriteBlog(blogs), blogs[2])
-    })
+  test("finds the right one among many", () => {
+    assert.deepStrictEqual(listHelper.favoriteBlog(blogs), blogs[2])
+  })
+})
+
+describe("mostBlogs", () => {
+  test("empty list returns null", () => {
+    assert.deepStrictEqual(listHelper.mostBlogs([]), null)
+  })
+
+  test("one blog returns the blog", () => {
+    assert.deepStrictEqual(listHelper.mostBlogs(oneBlog), { author: oneBlog[0].author, blogs: 1 })
+  })
+
+  test("finds the right one among many", () => {
+    assert.deepStrictEqual(listHelper.mostBlogs(blogs), { author: "Robert C. Martin", blogs: 3 })
+  })
+})
+
+describe("mostLikedAuthor", () => {
+  test("empty list returns null", () => {
+    assert.deepStrictEqual(listHelper.mostLikedAuthor([]), null)
+  })
+
+  test("one blog returns the blog", () => {
+    assert.deepStrictEqual(listHelper.mostLikedAuthor(oneBlog), { author: oneBlog[0].author, likes: oneBlog[0].likes })
+  })
+
+  test("finds the right one among many", () => {
+    assert.deepStrictEqual(listHelper.mostLikedAuthor(blogs), { author: "Edsger W. Dijkstra", likes: 17 })
+  })
 })
