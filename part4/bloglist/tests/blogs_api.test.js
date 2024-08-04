@@ -48,9 +48,7 @@ const initialBlogs = [
 
 beforeEach(async () => {
   await Blog.deleteMany({})
-  for (let blog of initialBlogs) {
-    await (await Blog.create(blog)).save()
-  }
+  await Blog.insertMany(initialBlogs)
 })
 
 describe("get blogs", () => {
@@ -119,6 +117,26 @@ describe("post blogs", () => {
       .send(newBlog)
       .expect(400)
       .expect((res) => res.body.error.includes("`url` is required"))
+  })
+})
+
+describe("delete blog", () => {
+  test("valid id deletes", async () => {
+    const indexToDelete = 2
+    const beforeDelete = await api.get("/api/blogs")
+    const idToDelete = beforeDelete.body[indexToDelete].id
+    await api.delete(`/api/blogs/${idToDelete}`).expect(204)
+
+    const updated = await api.get("/api/blogs")
+    assert.strictEqual(updated.body.length, initialBlogs.length - 1)
+    assert.notStrictEqual(updated.body[indexToDelete].id, idToDelete)
+  })
+
+  test("invalid id errors", async () => {
+    await api.delete("/api/blogs/1").expect(400).expect(res => res.body.error === "malformatted id")
+
+    const response = await api.get("/api/blogs")
+    assert.strictEqual(response.body.length, initialBlogs.length)
   })
 })
 
