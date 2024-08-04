@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --test",
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "test": "cross-env ENVIRONMENT=test node --test",
+    "start": "cross-env ENVIRONMENT=production node index.js",
+    "dev": "cross-env ENVIRONMENT=development index.js"
   },
   "author": "Hossein Ebrahimi",
   "license": "ISC",
