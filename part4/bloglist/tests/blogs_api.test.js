@@ -140,6 +140,34 @@ describe("delete blog", () => {
   })
 })
 
+describe("patch blog", () => {
+  test("patch likes updates only likes", async () => {
+    const indexToUpdate = 1
+    const response = await api.get("/api/blogs")
+    const idToUpdate = response.body[indexToUpdate].id
+    const newVal = 200
+    
+    await api.patch(`/api/blogs/${idToUpdate}`).send({likes: newVal}).expect(200)
+
+    const updated = await api.get("/api/blogs")
+
+    assert.strictEqual(updated.body[indexToUpdate].likes, newVal)
+  })
+
+  test("invalid value won't be applied", async () => {
+    const indexToUpdate = 1
+    const response = await api.get("/api/blogs")
+    const idToUpdate = response.body[indexToUpdate].id
+    const newVal = "fa"
+    
+    await api.patch(`/api/blogs/${idToUpdate}`).send({likes: newVal}).expect(400)
+
+    const updated = await api.get("/api/blogs")
+
+    assert.notStrictEqual(updated.body[indexToUpdate].likes, newVal)
+  })
+})
+
 after(async () => {
   await mongoose.connection.close()
 })

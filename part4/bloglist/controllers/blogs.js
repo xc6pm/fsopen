@@ -17,6 +17,16 @@ blogsRouter.post("/", async (request, response, next) => {
   }
 })
 
+blogsRouter.patch("/:id", async (request, response, next) => {
+  try {
+    const result = await Blog.findByIdAndUpdate(request.params.id, request.body, {runValidators: true, returnDocument: "after"})
+    console.log("result of patch", result)
+    response.status(200).json(result)
+  } catch (error) {
+    next(error)
+  }
+})
+
 blogsRouter.delete("/:id", async (request, response, next) => {
   try {
     await Blog.findByIdAndDelete(request.params.id)
