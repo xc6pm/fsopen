@@ -61,14 +61,13 @@ describe("get blogs", () => {
       .expect("Content-Type", /application\/json/)
       .expect((c) => c.body.length === initialBlogs.length)
   })
-  
+
   test("_id is renamed to id", async () => {
     const response = await api.get("/api/blogs")
     assert.ok("id" in response.body[0])
     assert.ok(!("_id" in response.body[0]))
   })
 })
-
 
 describe("post blogs", () => {
   const newBlog = {
@@ -80,15 +79,15 @@ describe("post blogs", () => {
 
   test("blog gets added", async () => {
     await api.post("/api/blogs").send(newBlog).expect(201)
-  
+
     const updatedBlogs = await api.get("/api/blogs")
-  
+
     assert.strictEqual(updatedBlogs.body.length, initialBlogs.length + 1)
-  
+
     delete updatedBlogs.body[updatedBlogs.body.length - 1].id
     assert.deepStrictEqual(updatedBlogs.body[updatedBlogs.body.length - 1], newBlog)
   })
-  
+
   test("likes defaults to zero", async () => {
     delete newBlog.likes
 
@@ -101,8 +100,27 @@ describe("post blogs", () => {
     assert.ok("likes" in updatedBlogs.body[updatedBlogs.body.length - 1])
     assert.equal(updatedBlogs.body[updatedBlogs.body.length - 1].likes, 0)
   })
-})
 
+  test("unprovided title errors", async () => {
+    delete newBlog.title
+
+    await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .expect(400)
+      .expect((res) => res.body.error.includes("`title` is required"))
+  })
+
+  test("unprovided url errors", async () => {
+    delete newBlog.url
+
+    await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .expect(400)
+      .expect((res) => res.body.error.includes("`url` is required"))
+  })
+})
 
 after(async () => {
   await mongoose.connection.close()
