@@ -3,6 +3,7 @@ const { test, after, beforeEach } = require("node:test")
 const mongoose = require("mongoose")
 const app = require("../app")
 const Blog = require("../models/blog")
+const assert = require("node:assert")
 
 const api = supertest(app)
 
@@ -58,6 +59,12 @@ test("initial notes are returned as json", async () => {
     .expect(200)
     .expect("Content-Type", /application\/json/)
     .expect(c => c.body.length === initialBlogs.length)
+})
+
+test("_id is renamed to id", async () => {
+  const response = await api.get("/api/blogs")
+  assert.ok("id" in response.body[0])
+  assert.ok(!("_id" in response.body[0]))
 })
 
 after(async () => {
