@@ -2,6 +2,15 @@ const blogsRouter = require("express").Router()
 const Blog = require("../models/blog")
 const User = require("../models/user")
 const config = require("../utils/config")
+const jwt = require("jsonwebtoken")
+
+const getTokenFrom = (request) => {
+  const authorizationHeader = request.get("authorization")
+  if (authorizationHeader && authorizationHeader.startsWith("Bearer ")) {
+    return authorizationHeader.replace("Bearer ", "")
+  }
+  return null
+}
 
 blogsRouter.get("/", async (request, response) => {
   const blogs = await Blog.find({}).populate("creator", "username name")
@@ -9,13 +18,16 @@ blogsRouter.get("/", async (request, response) => {
 })
 
 blogsRouter.post("/", async (request, response, next) => {
+  const token = getTokenFrom(request)
+  const decodedToken = token ? jwt.verify(token, config.SECRET) : null
+  if (!decodedToken?.id) {
+    return response.status(401).send("unauthorized")
+  }
+
+  const creator = await User.findById(decodedToken.id)
   const blog = new Blog(request.body)
 
-  const users = await User.find({})
-  const creatorIndex = Math.floor(Math.random() * users.length)
-  const creator = users[creatorIndex]
-
-  blog.creator = users[creatorIndex].id
+  blog.creator = creator.id
   
   try {
     const createdBlog = await blog.save()
