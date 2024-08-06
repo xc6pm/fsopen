@@ -14,7 +14,7 @@ blogsRouter.post("/", async (request, response, next) => {
     return response.status(401).send("unauthorized")
   }
 
-  const creator = await User.findById(decodedToken.id)
+  const creator = await User.findById(request.userId)
   const blog = new Blog(request.body)
 
   blog.creator = creator.id

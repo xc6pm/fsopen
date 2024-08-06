@@ -4,8 +4,22 @@ const mongoose = require("mongoose")
 const app = require("../app")
 const Blog = require("../models/blog")
 const assert = require("node:assert")
+const User = require("../models/user")
 
 const api = supertest(app)
+
+const initialUsers = [
+  {
+    username: "hsn",
+    name: "hssein",
+    password: "21341431",
+  },
+  {
+    username: "aram",
+    name: "alireza ameli",
+    password: "vniodr44",
+  },
+]
 
 const initialBlogs = [
   {
@@ -47,8 +61,32 @@ const initialBlogs = [
 ]
 
 beforeEach(async () => {
+  await User.deleteMany({})
+
+  let result = await api.post("/api/users").send(initialUsers[0])
+  result = await api.post("/api/users").send(initialUsers[1])
+
   await Blog.deleteMany({})
-  await Blog.insertMany(initialBlogs)
+
+  const res = await api.post("/api/login").send(initialUsers[0])
+  initialUsers[0].token = res.body.token
+  for (let i = 0; i < initialBlogs.length / 2; i++) {
+    await api
+      .post("/api/blogs")
+      .set("Authorization", `Bearer ${initialUsers[0].token}`)
+      .send(initialBlogs[i])
+  }
+
+  initialUsers[1].token = (await api.post("/api/login").send(initialUsers[1])).body.token
+  for (let i = initialBlogs.length / 2; i < initialBlogs.length; i++) {
+    await api
+      .post("/api/blogs")
+      .set("Authorization", `Bearer ${initialUsers[1].token}`)
+      .send(initialBlogs[i])
+  }
+
+  const users = await User.find({})
+  const blogs = await Blog.find({})
 })
 
 describe("get blogs", () => {
@@ -76,20 +114,32 @@ describe("post blogs", () => {
   }
 
   test("blog gets added", async () => {
-    await api.post("/api/blogs").send(newBlog).expect(201)
+    await api
+      .post("/api/blogs")
+      .set("authorization", `Bearer ${initialUsers[0].token}`)
+      .send(newBlog)
+      .expect(201)
 
     const updatedBlogs = await api.get("/api/blogs")
 
     assert.strictEqual(updatedBlogs.body.length, initialBlogs.length + 1)
 
-    delete updatedBlogs.body[updatedBlogs.body.length - 1].id
-    assert.deepStrictEqual(updatedBlogs.body[updatedBlogs.body.length - 1], newBlog)
+    const lastBlog = updatedBlogs.body[updatedBlogs.body.length - 1]
+    assert.strictEqual(lastBlog.title, newBlog.title)
+    assert.strictEqual(lastBlog.author, newBlog.author)
+    assert.strictEqual(lastBlog.url, newBlog.url)
+    assert.strictEqual(lastBlog.likes, newBlog.likes)
+    assert.strictEqual(lastBlog.creator.username, initialUsers[0].username)
   })
 
   test("likes defaults to zero", async () => {
     delete newBlog.likes
 
-    await api.post("/api/blogs").send(newBlog).expect(201)
+    await api
+      .post("/api/blogs")
+      .set("authorization", `Bearer ${initialUsers[0].token}`)
+      .send(newBlog)
+      .expect(201)
 
     const updatedBlogs = await api.get("/api/blogs")
 
@@ -104,6 +154,7 @@ describe("post blogs", () => {
 
     await api
       .post("/api/blogs")
+      .set("authorization", `Bearer ${initialUsers[0].token}`)
       .send(newBlog)
       .expect(400)
       .expect((res) => res.body.error.includes("`title` is required"))
@@ -114,6 +165,7 @@ describe("post blogs", () => {
 
     await api
       .post("/api/blogs")
+      .set("authorization", `Bearer ${initialUsers[0].token}`)
       .send(newBlog)
       .expect(400)
       .expect((res) => res.body.error.includes("`url` is required"))
@@ -122,10 +174,13 @@ describe("post blogs", () => {
 
 describe("delete blog", () => {
   test("valid id deletes", async () => {
-    const indexToDelete = 2
+    const indexToDelete = 4
     const beforeDelete = await api.get("/api/blogs")
     const idToDelete = beforeDelete.body[indexToDelete].id
-    await api.delete(`/api/blogs/${idToDelete}`).expect(204)
+    await api
+      .delete(`/api/blogs/${idToDelete}`)
+      .set("Authorization", `Bearer ${initialUsers[1].token}`)
+      .expect(204)
 
     const updated = await api.get("/api/blogs")
     assert.strictEqual(updated.body.length, initialBlogs.length - 1)
@@ -133,7 +188,11 @@ describe("delete blog", () => {
   })
 
   test("invalid id errors", async () => {
-    await api.delete("/api/blogs/1").expect(400).expect(res => res.body.error === "malformatted id")
+    await api
+      .delete("/api/blogs/1")
+      .set("Authorization", `Bearer ${initialUsers[0].token}`)
+      .expect(400)
+      .expect((res) => res.body.error === "malformatted id")
 
     const response = await api.get("/api/blogs")
     assert.strictEqual(response.body.length, initialBlogs.length)
@@ -146,8 +205,8 @@ describe("patch blog", () => {
     const response = await api.get("/api/blogs")
     const idToUpdate = response.body[indexToUpdate].id
     const newVal = 200
-    
-    await api.patch(`/api/blogs/${idToUpdate}`).send({likes: newVal}).expect(200)
+
+    await api.patch(`/api/blogs/${idToUpdate}`).send({ likes: newVal }).expect(200)
 
     const updated = await api.get("/api/blogs")
 
@@ -159,8 +218,8 @@ describe("patch blog", () => {
     const response = await api.get("/api/blogs")
     const idToUpdate = response.body[indexToUpdate].id
     const newVal = "fa"
-    
-    await api.patch(`/api/blogs/${idToUpdate}`).send({likes: newVal}).expect(400)
+
+    await api.patch(`/api/blogs/${idToUpdate}`).send({ likes: newVal }).expect(400)
 
     const updated = await api.get("/api/blogs")
 
