@@ -9,6 +9,15 @@ const requestLogger = (request, response, next) => {
   next()
 }
 
+const tokenExtractor = (request, response, next) => {
+  const authorizationHeader = request.get("authorization")
+  if (authorizationHeader && authorizationHeader.startsWith("Bearer ")) {
+    request.token = authorizationHeader.replace("Bearer ", "")
+  }
+
+  next()
+}
+
 const unknownEndpoint = (request, reponse) => {
   return response.status(404).send({ error: "Endpoint unreachable" })
 }
@@ -34,6 +43,7 @@ const errorHandler = (error, request, response, next) => {
 
 module.exports = {
   requestLogger,
+  tokenExtractor,
   unknownEndpoint,
   errorHandler,
 }
