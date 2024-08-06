@@ -10,8 +10,7 @@ blogsRouter.get("/", async (request, response) => {
 })
 
 blogsRouter.post("/", async (request, response, next) => {
-  const decodedToken = jwt.verify(request.token, config.SECRET)
-  if (!decodedToken?.id) {
+  if (!request.userId) {
     return response.status(401).send("unauthorized")
   }
 
@@ -19,7 +18,7 @@ blogsRouter.post("/", async (request, response, next) => {
   const blog = new Blog(request.body)
 
   blog.creator = creator.id
-  
+
   try {
     const createdBlog = await blog.save()
 
@@ -47,8 +46,17 @@ blogsRouter.patch("/:id", async (request, response, next) => {
 })
 
 blogsRouter.delete("/:id", async (request, response, next) => {
+  if (!request.userId) {
+    return response.status(401).send("unauthorized")
+  }
+
   try {
-    await Blog.findByIdAndDelete(request.params.id)
+    const blogToDelete = await Blog.findById(request.params.id)
+    if (blogToDelete.creator.toString() !== request.userId) {
+      return response.status(401).send("the blog is not yours to delete")
+    }
+
+    await blogToDelete.deleteOne()
     response.sendStatus(204)
   } catch (error) {
     next(error)
@@ -61,6 +69,5 @@ if (config.ENVIRONMENT !== "production") {
     response.status(200).json(result)
   })
 }
-
 
 module.exports = blogsRouter

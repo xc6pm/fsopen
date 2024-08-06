@@ -1,3 +1,5 @@
+const jwt = require("jsonwebtoken")
+const config = require("./config")
 const { response } = require("express")
 const logger = require("./logger")
 
@@ -13,6 +15,16 @@ const tokenExtractor = (request, response, next) => {
   const authorizationHeader = request.get("authorization")
   if (authorizationHeader && authorizationHeader.startsWith("Bearer ")) {
     request.token = authorizationHeader.replace("Bearer ", "")
+  }
+
+  next()
+}
+
+// Must run after tokenExtractor
+const userIdExtractor = (request, response, next) => {
+  if (request.token) {
+    const decodedToken = jwt.verify(request.token, config.SECRET)
+    request.userId = decodedToken?.id
   }
 
   next()
@@ -44,6 +56,7 @@ const errorHandler = (error, request, response, next) => {
 module.exports = {
   requestLogger,
   tokenExtractor,
+  userIdExtractor,
   unknownEndpoint,
   errorHandler,
 }
