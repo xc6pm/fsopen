@@ -6,4 +6,8 @@ const getAll = () => {
   return request.then(response => response.data)
 }
 
-export default { getAll }
+const patch = (id, blogPatch) => {
+  return axios.patch(`/api/blogs/${id.toString()}`, blogPatch)
+}
+
+export default { getAll, patch }
