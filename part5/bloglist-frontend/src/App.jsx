@@ -7,6 +7,7 @@ import BlogForm from "./components/BlogForm";
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
+  const [message, setMessage] = useState(null)
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -20,7 +21,13 @@ const App = () => {
     }
   }, []);
 
+  const showMessage = (newMessage) => {
+    setMessage(newMessage)
+    setTimeout(() => setMessage(null), 5000)
+  }
+
   const handleUserChange = (newUser) => {
+    showMessage(`logged in ${newUser.name}`)
     window.localStorage.setItem("blogsLoggedInUser", JSON.stringify(newUser));
     setUser(newUser);
   };
@@ -38,6 +45,8 @@ const App = () => {
     <div>
       <h2>blogs</h2>
 
+      {message && <p style={{color: "red"}}>{message}</p>}
+
       <p>
         {user.name} logged in <button onClick={logout}>log out</button>
       </p>
@@ -47,6 +56,7 @@ const App = () => {
         onBlogsUpdated={() =>
           blogService.getAll().then((blogs) => setBlogs(blogs))
         }
+        showMessage={showMessage}
       />
 
       {blogs.map((blog) => (
