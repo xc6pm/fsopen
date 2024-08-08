@@ -19,7 +19,9 @@ const App = () => {
     const loggedInUserJson = window.localStorage.getItem("blogsLoggedInUser");
 
     if (loggedInUserJson) {
-      setUser(JSON.parse(loggedInUserJson));
+      const u = JSON.parse(loggedInUserJson)
+      setUser(u);
+      blogService.setToken(u.token);
     }
   }, []);
 
@@ -32,11 +34,13 @@ const App = () => {
     showMessage(`logged in ${newUser.name}`);
     window.localStorage.setItem("blogsLoggedInUser", JSON.stringify(newUser));
     setUser(newUser);
+    blogService.setToken(newUser.token);
   };
 
   const logout = () => {
     window.localStorage.removeItem("blogsLoggedInUser");
     setUser(null);
+    blogService.setToken("");
   };
 
   const refreshBlogs = () => {
@@ -64,9 +68,17 @@ const App = () => {
         </p>
       )}
 
-      {blogs.sort((a, b) => b.likes - a.likes).map((blog) => (
-        <Blog key={blog.id} blog={blog} blogsUpdated={refreshBlogs} showMessage={showMessage}/>
-      ))}
+      {blogs
+        .sort((a, b) => b.likes - a.likes)
+        .map((blog) => (
+          <Blog
+            key={blog.id}
+            blog={blog}
+            blogsUpdated={refreshBlogs}
+            showMessage={showMessage}
+            user={user}
+          />
+        ))}
 
       {user && (
         <Togglable buttonLabel={"add blog"} ref={blogFormTogglable}>
