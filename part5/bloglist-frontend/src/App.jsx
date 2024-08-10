@@ -19,7 +19,7 @@ const App = () => {
     const loggedInUserJson = window.localStorage.getItem("blogsLoggedInUser");
 
     if (loggedInUserJson) {
-      const u = JSON.parse(loggedInUserJson)
+      const u = JSON.parse(loggedInUserJson);
       setUser(u);
       blogService.setToken(u.token);
     }
@@ -61,7 +61,21 @@ const App = () => {
     } else {
       showMessage("request failed");
     }
-  }
+  };
+
+  const createBlog = async (newBlog) => {
+    const response = await axios.post("/api/blogs", newBlog, {
+      headers: { Authorization: `Bearer ${user.token}` },
+    });
+    if (response.status === 201) {
+      showMessage(`added ${title}`);
+      onBlogsUpdated();
+      return true;
+    } else {
+      showMessage(response.data && response.data.error);
+      return false;
+    }
+  };
 
   return (
     <div>
@@ -95,11 +109,7 @@ const App = () => {
 
       {user && (
         <Togglable buttonLabel={"add blog"} ref={blogFormTogglable}>
-          <BlogForm
-            user={user}
-            onBlogsUpdated={handleBlogsUpdated}
-            showMessage={showMessage}
-          />
+          <BlogForm createBlog={createBlog} />
         </Togglable>
       )}
     </div>
