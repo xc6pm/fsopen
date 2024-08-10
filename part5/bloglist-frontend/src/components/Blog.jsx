@@ -1,23 +1,11 @@
 import { useState } from "react";
 import blogsService from "../services/blogs";
 
-const Blog = ({ blog, blogsUpdated, showMessage, user }) => {
+const Blog = ({ blog, onLiked, blogsUpdated, showMessage, user }) => {
   const [detailsVisible, setDetailsVisible] = useState(false);
 
   const toggleDetailsVisible = () => {
     setDetailsVisible(!detailsVisible);
-  };
-
-  const likeBlog = async () => {
-    const response = await blogsService.patch(blog.id, {
-      likes: blog.likes + 1,
-    });
-    if (response.status === 200) {
-      showMessage(`${blog.title} liked`);
-      blogsUpdated();
-    } else {
-      showMessage("request failed");
-    }
   };
 
   const deleteBlog = async () => {
@@ -44,7 +32,7 @@ const Blog = ({ blog, blogsUpdated, showMessage, user }) => {
         {blog.url}
         <br />
         <span data-testid="likes">
-          {blog.likes} <button onClick={likeBlog}>like</button>
+          {blog.likes} <button onClick={onLiked}>like</button>
         </span>
         <br />
         {blog.creator.name}

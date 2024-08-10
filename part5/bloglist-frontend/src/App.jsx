@@ -51,6 +51,18 @@ const App = () => {
     blogFormTogglable.current.toggleVisibility();
   };
 
+  const handleBlogLiked = async (blog) => {
+    const response = await blogService.patch(blog.id, {
+      likes: blog.likes,
+    });
+    if (response.status === 200) {
+      showMessage(`${blog.title} liked`);
+      handleBlogsUpdated();
+    } else {
+      showMessage("request failed");
+    }
+  }
+
   return (
     <div>
       <h2>blogs</h2>
@@ -74,6 +86,7 @@ const App = () => {
           <Blog
             key={blog.id}
             blog={blog}
+            onLiked={handleBlogLiked}
             blogsUpdated={refreshBlogs}
             showMessage={showMessage}
             user={user}

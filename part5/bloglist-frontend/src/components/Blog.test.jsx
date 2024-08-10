@@ -46,4 +46,22 @@ test("pressing more button displays likes and url", () => {
 })
 
 
-test("")
+test("like button calls the handler exactly once", () => {
+    const likedHandler = vi.fn()
+
+    render(<Blog blog={blog} onLiked={likedHandler}/>)
+
+    const moreButton = screen.getByText("more")
+
+    fireEvent.click(moreButton)
+
+    const likeButton = screen.getByText("like")
+
+    fireEvent.click(likeButton)
+
+    expect(likedHandler.mock.calls).toHaveLength(1)
+
+    fireEvent.click(likeButton)
+
+    expect(likedHandler.mock.calls).toHaveLength(2)
+})
