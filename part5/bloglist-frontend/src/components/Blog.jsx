@@ -43,7 +43,7 @@ const Blog = ({ blog, blogsUpdated, showMessage, user }) => {
       <div style={{ display: detailsVisible ? "" : "none" }}>
         {blog.url}
         <br />
-        <span>
+        <span data-testid="likes">
           {blog.likes} <button onClick={likeBlog}>like</button>
         </span>
         <br />
