@@ -83,11 +83,7 @@ const App = () => {
 
       {message && <p style={{ color: "red" }}>{message}</p>}
 
-      {!user && (
-        <Togglable buttonLabel={"login"}>
-          <LoginForm onUserChanged={handleUserChange} />
-        </Togglable>
-      )}
+      {!user && <LoginForm onUserChanged={handleUserChange} />}
       {user && (
         <p>
           {user.name} logged in <button onClick={logout}>log out</button>
