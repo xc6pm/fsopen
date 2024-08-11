@@ -18,7 +18,7 @@ app.use(cors())
 app.use(express.static("dist"))
 app.use(express.json())
 
-// app.use(middleware.requestLogger)
+app.use(middleware.requestLogger)
 app.use(middleware.tokenExtractor)
 
 app.use("/api/blogs", middleware.userIdExtractor, blogsRouter)

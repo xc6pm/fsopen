@@ -81,9 +81,9 @@ const App = () => {
     <div>
       <h2>blogs</h2>
 
-      {message && <p style={{ color: "red" }}>{message}</p>}
+      {message && <p style={{ color: "red" }} data-testid="message">{message}</p>}
 
-      {!user && <LoginForm onUserChanged={handleUserChange} />}
+      {!user && <LoginForm onUserChanged={handleUserChange} showMessage={showMessage}/>}
       {user && (
         <p>
           {user.name} logged in <button onClick={logout}>log out</button>
