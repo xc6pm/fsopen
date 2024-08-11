@@ -47,4 +47,33 @@ describe("Blog app", () => {
       await expect(page.getByTestId("message")).toBeVisible();
     });
   });
+
+  describe('When logged in', () => {
+    beforeEach(async ({ page }) => {
+      await page.fill("#username", rootUser.username);
+      await page.fill("#password", rootUser.password);
+      await page.getByRole("button", { name: "login" }).click();
+
+      await expect(page.getByText(`${rootUser.name} logged in`)).toBeVisible();
+    })
+  
+    test('a new blog can be created', async ({ page }) => {
+      await page.getByRole("button", { name: "add blog" }).click();
+
+      const newBlog = {
+        title: "5 Ways to Build Resilience and Conquer Adversity",
+        author: "Mark Manson",
+        url: "https://markmanson.net/resilience",
+      };
+
+      await page.fill("#title", newBlog.title);
+      await page.fill("#author", newBlog.author);
+      await page.fill("#url", newBlog.url);
+
+      await page.getByRole("button", { name: "create" }).click();
+
+      await page.pause()
+      await expect(page.getByText(newBlog.title + " " + newBlog.author)).toBeVisible()
+    })
+  })
 });

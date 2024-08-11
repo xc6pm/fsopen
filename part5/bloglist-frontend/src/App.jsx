@@ -4,6 +4,7 @@ import blogService from "./services/blogs";
 import LoginForm from "./components/LoginForm";
 import BlogForm from "./components/BlogForm";
 import Togglable from "./components/Togglable";
+import axios from "axios";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
@@ -69,7 +70,7 @@ const App = () => {
     });
     if (response.status === 201) {
       showMessage(`added ${title}`);
-      onBlogsUpdated();
+      handleBlogsUpdated();
       return true;
     } else {
       showMessage(response.data && response.data.error);
