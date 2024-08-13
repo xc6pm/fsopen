@@ -41,13 +41,17 @@ describe("Blog app", () => {
     ).toBeVisible();
   };
 
+  const login = async (page, user) => {
+    await page.fill("#username", user.username);
+    await page.fill("#password", user.password);
+    await page.getByRole("button", { name: "login" }).click();
+
+    await expect(page.getByText(`${user.name} logged in`)).toBeVisible();
+  };
+
   describe("Login", () => {
     test("succeeds with correct credentials", async ({ page }) => {
-      await page.fill("#username", rootUser.username);
-      await page.fill("#password", rootUser.password);
-      await page.getByRole("button", { name: "login" }).click();
-
-      await expect(page.getByText(`${rootUser.name} logged in`)).toBeVisible();
+      await login(page, rootUser);
     });
 
     test("fails with wrong username", async ({ page }) => {
@@ -109,12 +113,34 @@ describe("Blog app", () => {
 
     test("blog can be deleted", async ({ page }) => {
       await page.getByRole("button", { name: "more" }).click();
-      
+
       page.on("dialog", (dialog) => dialog.accept());
       await page.getByRole("button", { name: "delete" }).click();
 
       await expect(
         page.getByText(firstBlog.title + " " + firstBlog.author)
+      ).not.toBeVisible();
+    });
+
+    test("user who did not created a blog cant see its delete button", async ({
+      page,
+      request,
+    }) => {
+      const newUser = {
+        username: "johnson",
+        name: "John Son",
+        password: "23456789",
+      };
+
+      await request.post("/api/users", { data: newUser });
+      await page.pause();
+      await page.getByRole("button", { name: "log out" }).click();
+      await login(page, newUser);
+
+      await page.getByRole("button", { name: "more" }).click();
+
+      await expect(
+        page.getByRole("button", { name: "delete" })
       ).not.toBeVisible();
     });
   });
