@@ -54,11 +54,11 @@ const App = () => {
 
   const handleBlogLiked = async (blog) => {
     const response = await blogService.patch(blog.id, {
-      likes: blog.likes,
+      likes: blog.likes + 1,
     });
     if (response.status === 200) {
-      showMessage(`${blog.title} liked`);
       handleBlogsUpdated();
+      showMessage(`${blog.title} liked`);
     } else {
       showMessage("request failed");
     }

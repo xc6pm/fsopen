@@ -32,7 +32,7 @@ const Blog = ({ blog, onLiked, blogsUpdated, showMessage, user }) => {
         {blog.url}
         <br />
         <span data-testid="likes">
-          {blog.likes} <button onClick={onLiked}>like</button>
+          {blog.likes} <button onClick={() => onLiked(blog)}>like</button>
         </span>
         <br />
         {blog.creator.name}

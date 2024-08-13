@@ -22,6 +22,26 @@ describe("Blog app", () => {
     expect((await inputs).length).toBe(2);
   });
 
+  const firstBlog = {
+    title: "5 Ways to Build Resilience and Conquer Adversity",
+    author: "Mark Manson",
+    url: "https://markmanson.net/resilience",
+  };
+  const addFirstBlog = async (page) => {
+    await page.getByRole("button", { name: "add blog" }).click();
+
+    await page.fill("#title", firstBlog.title);
+    await page.fill("#author", firstBlog.author);
+    await page.fill("#url", firstBlog.url);
+
+    await page.getByRole("button", { name: "create" }).click();
+
+    // await page.pause();
+    await expect(
+      page.getByText(firstBlog.title + " " + firstBlog.author)
+    ).toBeVisible();
+  };
+
   describe("Login", () => {
     test("succeeds with correct credentials", async ({ page }) => {
       await page.fill("#username", rootUser.username);
@@ -48,32 +68,44 @@ describe("Blog app", () => {
     });
   });
 
-  describe('When logged in', () => {
+  describe("When logged in", () => {
     beforeEach(async ({ page }) => {
       await page.fill("#username", rootUser.username);
       await page.fill("#password", rootUser.password);
       await page.getByRole("button", { name: "login" }).click();
 
       await expect(page.getByText(`${rootUser.name} logged in`)).toBeVisible();
-    })
-  
-    test('a new blog can be created', async ({ page }) => {
-      await page.getByRole("button", { name: "add blog" }).click();
+    });
 
-      const newBlog = {
-        title: "5 Ways to Build Resilience and Conquer Adversity",
-        author: "Mark Manson",
-        url: "https://markmanson.net/resilience",
-      };
+    test("a new blog can be created", async ({ page }) => {
+      await addFirstBlog(page);
+    });
+  });
 
-      await page.fill("#title", newBlog.title);
-      await page.fill("#author", newBlog.author);
-      await page.fill("#url", newBlog.url);
+  describe("After blog is created", () => {
+    let addedBlog;
+    beforeEach(async ({ page }) => {
+      await page.fill("#username", rootUser.username);
+      await page.fill("#password", rootUser.password);
+      await page.getByRole("button", { name: "login" }).click();
 
-      await page.getByRole("button", { name: "create" }).click();
+      await expect(page.getByText(`${rootUser.name} logged in`)).toBeVisible();
 
-      await page.pause()
-      await expect(page.getByText(newBlog.title + " " + newBlog.author)).toBeVisible()
-    })
-  })
+      await addFirstBlog(page);
+    });
+
+    test("blog can be liked", async ({ page }) => {
+      await page.getByRole("button", { name: "more" }).click();
+
+      let likesEl = page.getByTestId("likes");
+      expect((await likesEl.textContent())[0]).toBe("0");
+
+      await page.getByRole("button", { name: "like" }).click();
+
+      await expect(page.getByText(firstBlog.title + " liked")).toBeVisible();
+
+      await page.waitForTimeout(500)
+      expect((await likesEl.textContent())[0]).toBe("1");
+    });
+  });
 });
