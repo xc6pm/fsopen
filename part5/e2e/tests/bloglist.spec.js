@@ -27,18 +27,16 @@ describe("Blog app", () => {
     author: "Mark Manson",
     url: "https://markmanson.net/resilience",
   };
-  const addFirstBlog = async (page) => {
+  const addBlog = async (page, blog) => {
     await page.getByRole("button", { name: "add blog" }).click();
 
-    await page.fill("#title", firstBlog.title);
-    await page.fill("#author", firstBlog.author);
-    await page.fill("#url", firstBlog.url);
+    await page.fill("#title", blog.title);
+    await page.fill("#author", blog.author);
+    await page.fill("#url", blog.url);
 
     await page.getByRole("button", { name: "create" }).click();
 
-    await expect(
-      page.getByText(firstBlog.title + " " + firstBlog.author)
-    ).toBeVisible();
+    await expect(page.getByText(blog.title + " " + blog.author)).toBeVisible();
   };
 
   const login = async (page, user) => {
@@ -81,7 +79,7 @@ describe("Blog app", () => {
     });
 
     test("a new blog can be created", async ({ page }) => {
-      await addFirstBlog(page);
+      await addBlog(page, firstBlog);
     });
   });
 
@@ -94,7 +92,7 @@ describe("Blog app", () => {
 
       await expect(page.getByText(`${rootUser.name} logged in`)).toBeVisible();
 
-      await addFirstBlog(page);
+      await addBlog(page, firstBlog);
     });
 
     test("blog can be liked", async ({ page }) => {
@@ -142,6 +140,83 @@ describe("Blog app", () => {
       await expect(
         page.getByRole("button", { name: "delete" })
       ).not.toBeVisible();
+    });
+
+    test("blogs are sorted by number of likes", async ({ page }) => {
+      const blogs = [
+        {
+          title: "React patterns",
+          author: "Michael Chan",
+          url: "https://reactpatterns.com/",
+        },
+        {
+          title: "Go To Statement Considered Harmful",
+          author: "Edsger W. Dijkstra",
+          url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
+        },
+        {
+          title: "Canonical string reduction",
+          author: "Edsger W. Dijkstra",
+          url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
+        },
+        {
+          title: "First class tests",
+          author: "Robert C. Martin",
+          url: "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll",
+        },
+        {
+          title: "TDD harms architecture",
+          author: "Robert C. Martin",
+          url: "http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html",
+        },
+        {
+          title: "Type wars",
+          author: "Robert C. Martin",
+          url: "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html",
+        },
+      ];
+
+      for (let i = 0; i < blogs.length; i++) {
+        await addBlog(page, blogs[i]);
+      }
+
+      const numberOfLikes = [0, 3, 5, 3, 6, 14, 4];
+      const blogContainers = await page.getByTestId("blogContainer").all();
+      for (let blogContainer of blogContainers) {
+        await blogContainer.getByRole("button", { name: "more" }).click();
+      }
+      await page.waitForTimeout(300);
+      let likeButtons = await Promise.all(
+        blogContainers.map(
+          async (c) =>
+            await c
+              .locator("div")
+              .getByRole("button", { name: "like" })
+              .elementHandle()
+        )
+      );
+      let i = 0;
+      for (let likeButton of likeButtons) {
+        for (let j = 0; j < numberOfLikes[i]; j++) {
+          // await page.waitForTimeout(200);
+          await likeButton.click();
+        }
+        i++;
+      }
+
+      await page.pause();
+      const likesOnItems = [];
+      for (let i = 0; i < numberOfLikes.length; i++) {
+        const itemContainer = blogContainers[i];
+        const likes = parseInt(
+          (await itemContainer.getByTestId("likes").textContent()).split(" ")[0]
+        );
+
+        likesOnItems.push(likes);
+        if (i - 1 >= 0) {
+          expect(likesOnItems[i] <= likesOnItems[i - 1]).toBeTruthy();
+        }
+      }
     });
   });
 });

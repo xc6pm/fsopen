@@ -23,7 +23,7 @@ const Blog = ({ blog, onLiked, blogsUpdated, showMessage, user }) => {
   };
 
   return (
-    <div style={{ border: "2px solid black", margin: "5px", padding: "3px" }}>
+    <div data-testid="blogContainer" style={{ border: "2px solid black", margin: "5px", padding: "3px" }}>
       {blog.title} {blog.author}{" "}
       <button onClick={toggleDetailsVisible}>
         {detailsVisible ? "hide" : "more"}
